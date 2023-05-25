@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ChevronLeft, ImageIcon } from 'lucide-react'
+import { MediaPicker } from '@/components/MediaPicker'
 
 export default function NewMemory() {
   return (
@@ -18,7 +19,6 @@ export default function NewMemory() {
             className="flex cursor-pointer items-center gap-1.5 text-gray-200 hover:text-gray-100"
           >
             <ImageIcon width={22} height={22} />
-            <input type="file" id="midia" className="invisible h-0 w-0" />
             Anexar mídia
           </label>
           <label
@@ -34,6 +34,7 @@ export default function NewMemory() {
             Tornar memória pública
           </label>
         </div>
+        <MediaPicker />
         <textarea
           name="content"
           className="w-full flex-1 resize-none rounded border-0 bg-transparent p-0 text-lg leading-relaxed placeholder:text-gray-400 focus:ring-0"
