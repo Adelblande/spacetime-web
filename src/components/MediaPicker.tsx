@@ -24,6 +24,7 @@ export function MediaPicker() {
         onChange={onFileSelected}
         type="file"
         id="midia"
+        name="coverUrl"
         accept="image/*,video/*"
         className="invisible h-0 w-0"
       />
