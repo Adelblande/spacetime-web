@@ -1,15 +1,32 @@
 'use client'
 
-import { FormEvent } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
 import { ImageIcon } from 'lucide-react'
 import { MediaPicker } from './MediaPicker'
 import { api } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 
-export function FormNewMemory() {
+interface FormEditMemoryProps {
+  id: string
+}
+
+interface DetailsProps {
+  id: string
+  content: string
+  isPublic: boolean
+  coverUrl: string
+  typeMedia: string
+  userId: string
+  createdAt: string
+}
+
+export function FormEditMemory({ id }: FormEditMemoryProps) {
   const router = useRouter()
-  async function handleCreateMemory(event: FormEvent<HTMLFormElement>) {
+  const token = Cookies.get('token')
+  const [details, setDetails] = useState<DetailsProps>({} as DetailsProps)
+
+  async function handleSaveMemory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const formData = new FormData(event.currentTarget)
@@ -25,8 +42,6 @@ export function FormNewMemory() {
       coverUrl = uploadResponse.data.fileUrl
       typeMedia = uploadResponse.data.typeMedia
     }
-
-    const token = Cookies.get('token')
 
     await api.post(
       '/memories',
@@ -46,8 +61,22 @@ export function FormNewMemory() {
     router.push('/')
   }
 
+  async function fetchDetails() {
+    const response = await api.get(`/memories/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    setDetails(response.data)
+  }
+
+  useEffect(() => {
+    fetchDetails()
+  }, [])
+
   return (
-    <form onSubmit={handleCreateMemory} className="flex flex-1 flex-col gap-2">
+    <form onSubmit={handleSaveMemory} className="flex flex-1 flex-col gap-2">
       <div className="flex items-center gap-4">
         <label
           htmlFor="midia"
@@ -64,7 +93,10 @@ export function FormNewMemory() {
             type="checkbox"
             id="isPublic"
             name="isPublic"
-            value="true"
+            checked={details.isPublic}
+            onChange={() =>
+              setDetails({ ...details, isPublic: !details.isPublic })
+            }
             className="h-4 w-4 rounded border-gray-400 bg-gray-700 text-purple-500 focus:ring-0"
           />
           Tornar memória pública
@@ -75,6 +107,10 @@ export function FormNewMemory() {
         name="content"
         className="w-full flex-1 resize-none rounded border-0 bg-transparent p-0 text-lg leading-relaxed placeholder:text-gray-400 focus:ring-0"
         placeholder="Fique livre para adicionar fotos, vídeos e relatos sobre essa experiência que você quer lembrar para sempre."
+        value={details.content}
+        onChange={(event) =>
+          setDetails({ ...details, content: event.target.value })
+        }
       />
       <button
         type="submit"
